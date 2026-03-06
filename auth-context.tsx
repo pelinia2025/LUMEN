@@ -11,17 +11,18 @@ interface Employee {
   id: string;
   name: string;
   name_normalized: string;
-  pin_hash: string;
+  pin: string;
   group: "A" | "B";
   role: "admin" | "user";
   vacation_balance: number;
+  parkingSpot?: string;
   active: boolean;
 }
 
 interface AuthContextType {
   user: Employee | null;
   loading: boolean;
-  login: (name: string) => Promise<{ success: boolean; message: string }>;
+  login: (name: string, pin: string) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
 }
 
@@ -41,7 +42,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Asegurar que siempre haya una sesión de Firebase activa
     const unsub = auth.onAuthStateChanged((fbUser) => {
       if (!fbUser) {
         signInAnonymously(auth).catch(err => console.error("Anonymous sign in error:", err));
@@ -52,10 +52,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsub();
   }, []);
 
-  const login = async (name: string) => {
+  const login = async (name: string, pin: string) => {
     try {
       if (!name || name.trim().length < 2) {
         return { success: false, message: "Nombre demasiado corto" };
+      }
+      if (!pin || pin.length !== 4) {
+        return { success: false, message: "El PIN debe ser de 4 dígitos" };
       }
 
       const norm = normalizeName(name);
@@ -68,15 +71,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const snap = await getDocs(q);
 
       if (snap.empty) {
-        await logAction("system", "LOGIN_FAIL", { input: name, normalized: norm, reason: "NOT_FOUND" });
-        return { success: false, message: "Usuario no encontrado. Revisa si hay espacios extras." };
+        await logAction("system", "LOGIN_FAIL_NAME", { input: name, normalized: norm, reason: "NOT_FOUND" });
+        return { success: false, message: "Usuario no encontrado." };
       }
 
-      const doc = snap.docs[0];
-      const empData = { id: doc.id, ...doc.data() } as Employee;
+      const docData = snap.docs[0];
+      const empData = { id: docData.id, ...docData.data() } as Employee;
 
       if (!empData.active) {
         return { success: false, message: "Usuario desactivado" };
+      }
+
+      // Verificación de PIN
+      if (empData.pin !== pin) {
+        await logAction(empData.id, "LOGIN_FAIL_PIN", { reason: "WRONG_PIN" });
+        return { success: false, message: "PIN incorrecto." };
       }
 
       setUser(empData);

@@ -1,36 +1,28 @@
-# Portal Lumen - Intranet RRHH
 
-Este es el sistema interno para la gestión de vacaciones y permisos de Agencia Lumen, construido con Next.js 15, Firebase y Tailwind CSS.
+# 🚀 Portal Lumen - Guía de Actualización v1.0.6
 
-## 📥 Cómo Descargar el Proyecto
-Si estás viendo esto en el editor online:
-1. Ve al menú superior izquierdo (tres líneas) > **Terminal** > **New Terminal**.
-2. Ejecuta: `zip -r proyecto.zip . -x "node_modules/*" ".next/*" ".git/*"`
-3. En el panel izquierdo (Explorador de archivos), busca `proyecto.zip`.
-4. Haz **clic derecho** sobre él y selecciona **Download**.
+Este portal gestiona el flujo de trabajo y las vacaciones de la Agencia Lumen.
 
-## 🚀 Inicio Rápido (Local)
-Una vez descargado y extraído en tu PC:
-1. **Instala las dependencias**:
-   ```bash
-   npm install
-   ```
-2. **Inicia el servidor de desarrollo**:
-   ```bash
-   npm run dev
-   ```
-3. Abre [http://localhost:9002](http://localhost:9002) en tu navegador.
+## 🔄 Cómo ver los cambios en tu App (Vercel)
 
-## 🌐 Cómo Publicar Gratis (Firebase App Hosting)
-1. **GitHub**: Sube este código a un repositorio en tu cuenta de GitHub.
-2. **Firebase Console**:
-   - Crea un proyecto en [Firebase](https://console.firebase.google.com/).
-   - Ve a **Build** > **App Hosting**.
-   - Conecta tu GitHub y selecciona el repositorio.
-3. **Despliegue**: Firebase configurará automáticamente el dominio gratuito (ej. `lumen.web.app`).
+Si los cambios no aparecen automáticamente en tu enlace de Vercel, sigue estos pasos:
 
-## 🛠️ Funcionalidades
-- **Dashboard**: Vista de días de oficina (L-V) y saldo de vacaciones.
-- **Solicitudes**: Gestión de Vacaciones, Permisos y Enfermedades.
-- **Panel Admin**: Botón directo en el inicio para aprobar/rechazar solicitudes y editar saldos.
-- **Historial**: Seguimiento de respuestas y comentarios de RRHH.
+1. **Entra a Vercel**: Ve a [vercel.com](https://vercel.com) e inicia sesión.
+2. **Selecciona tu Proyecto**: Haz clic en el proyecto `portal-lumen`.
+3. **Pestaña "Deployments"**: En el menú superior, haz clic en **Deployments**.
+4. **Hacer Redeploy**:
+   - Busca el primer elemento de la lista (el más reciente).
+   - A su derecha, haz clic en los **tres puntos verticales (...)**.
+   - Selecciona **"Redeploy"**.
+   - Confirma haciendo clic en el botón azul **"Redeploy"**.
+5. **Espera el Check Verde**: Cuando el estado pase a "Ready", refresca tu aplicación.
+
+## 🛠️ Novedades v1.0.6
+- **Identificador visual**: Verás la versión en la pantalla de login.
+- **Borrado Infalible**: Corregida la ruta de base de datos para borrar solicitudes sin errores.
+- **Acciones Masivas**: Selecciona varias solicitudes para aprobar o borrar a la vez.
+- **Dashboard Potenciado**: Verás tus estadísticas anuales y número de parqueo.
+- **Panel RRHH**: Edición de PIN, Nombre y Parqueo habilitada mediante el icono de lápiz.
+
+---
+*Agencia Lumen - Sistema de Gestión Interna v1.0.6*

@@ -36,7 +36,7 @@ export const getWorkStatus = (
   date: Date,
   employee: any,
   settings: any,
-  approvedRequests: any[]
+  allRequests: any[]
 ): "CERRADO" | "VACACIONES" | "PERMISO" | "ENFERMO" | "OFICINA" | "HOME OFFICE" => {
   const d = normalizeDate(date);
   const dayOfWeek = d.getDay(); // 0 (Dom) a 6 (Sab)
@@ -49,8 +49,9 @@ export const getWorkStatus = (
   const isClosure = (settings.office_closures || []).some((c: any) => isSameDay(normalizeDate(c.toDate ? c.toDate() : c), d));
   if (isHoliday || isClosure) return "CERRADO";
 
-  // 3. Solicitudes aprobadas
-  const request = approvedRequests.find(req => {
+  // 3. Solicitudes aprobadas (FILTRADO ESTRICTO POR STATUS 'approved')
+  const request = (allRequests || []).find(req => {
+    if (req.status !== "approved") return false;
     const start = normalizeDate(req.startDate.toDate ? req.startDate.toDate() : req.startDate);
     const end = normalizeDate(req.endDate.toDate ? req.endDate.toDate() : req.endDate);
     return d >= start && d <= end;
@@ -65,20 +66,22 @@ export const getWorkStatus = (
   // 4. Regla Semanal (A/B)
   const weekType = getWeekType(d, settings.week1_monday_date?.toDate ? settings.week1_monday_date.toDate() : new Date("2025-03-03"));
   const group = employee.group;
+  const pattern = settings.week1Pattern || "A_MWF";
 
-  const isMon = dayOfWeek === 1;
-  const isTue = dayOfWeek === 2;
-  const isWed = dayOfWeek === 3;
-  const isThu = dayOfWeek === 4;
-  const isFri = dayOfWeek === 5;
+  const isMWF = dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5;
+  const isTTh = dayOfWeek === 2 || dayOfWeek === 4;
 
+  let mwfGroup: "A" | "B";
+  
   if (weekType === "Semana 1") {
-    if (group === "A" && (isMon || isWed || isFri)) return "OFICINA";
-    if (group === "B" && (isTue || isThu)) return "OFICINA";
+    mwfGroup = pattern === "A_MWF" ? "A" : "B";
   } else {
-    if (group === "A" && (isTue || isThu)) return "OFICINA";
-    if (group === "B" && (isMon || isWed || isFri)) return "OFICINA";
+    mwfGroup = pattern === "A_MWF" ? "B" : "A";
   }
 
-  return "HOME OFFICE";
+  if (group === mwfGroup) {
+    return isMWF ? "OFICINA" : "HOME OFFICE";
+  } else {
+    return isTTh ? "OFICINA" : "HOME OFFICE";
+  }
 };
