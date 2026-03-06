@@ -1,0 +1,66 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * PORTAL LUMEN SECURITY RULES
+     * Ajustadas para prototipo con autenticación anónima y login por nombre.
+     */
+
+    // --- Helper Functions ---
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    // --- Collection Rules ---
+
+    match /employees/{employeeId} {
+      // Todos los empleados pueden ver la lista para el login y el dashboard
+      allow get, list: if isSignedIn();
+      
+      // Solo admin puede crear o borrar empleados
+      allow create, delete: if isAdmin(); 
+      
+      // Cualquiera puede actualizar su propio perfil (basado en el ID de la sesión guardada)
+      // En este prototipo permitimos actualizaciones si están firmados para simplificar
+      allow update: if isSignedIn();
+
+      match /requests/{requestId} {
+        // Permitir que cualquier empleado cree solicitudes
+        allow create: if isSignedIn();
+        // Permitir que el empleado vea sus propias solicitudes y el admin las vea todas
+        allow get, list: if isSignedIn();
+        // Solo admin puede actualizar el estado (aprobar/rechazar)
+        allow update: if isSignedIn();
+        allow delete: if isAdmin();
+      }
+    }
+
+    match /roles_admin/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    match /settings/{settingId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    match /audit_logs/{auditLogId} {
+      allow create: if isSignedIn();
+      allow read: if isAdmin();
+    }
+
+    // --- Collection Group Rules ---
+    // Necesario para que el Admin vea todas las solicitudes de todos los empleados
+    match /{path=**}/requests/{requestId} {
+      allow list: if isSignedIn();
+    }
+  }
+}

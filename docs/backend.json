@@ -1,0 +1,216 @@
+
+{
+  "entities": {
+    "Employee": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Employee",
+      "type": "object",
+      "description": "Represents an internal collaborator in the agency, including their profile, access roles, and vacation balance.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Employee entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the employee."
+        },
+        "nameNormalized": {
+          "type": "string",
+          "description": "A normalized version of the employee's name for consistent lookup."
+        },
+        "group": {
+          "type": "string",
+          "description": "The work group assigned to the employee ('A' or 'B').",
+          "format": "enum"
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the employee ('admin' or 'user').",
+          "format": "enum"
+        },
+        "vacationBalance": {
+          "type": "number",
+          "description": "Available vacation days."
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Indicates if the account is active."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "nameNormalized",
+        "group",
+        "role",
+        "vacationBalance",
+        "active",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Setting": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Setting",
+      "type": "object",
+      "description": "Global configuration settings.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "week1MondayDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "holidays": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "officeClosures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "week1MondayDate",
+        "holidays",
+        "officeClosures"
+      ]
+    },
+    "Request": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Request",
+      "type": "object",
+      "description": "Formal request for vacation, permission, or sick leave.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "employeeId": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "format": "enum"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "format": "enum"
+        },
+        "hrComment": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "employeeId",
+        "type",
+        "startDate",
+        "endDate",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "AuditLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AuditLog",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "actorEmployeeId": { "type": "string" },
+        "action": { "type": "string" },
+        "payload": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "id",
+        "action",
+        "payload",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/employees/{employeeId}",
+        "definition": {
+          "entityName": "Employee",
+          "schema": { "$ref": "#/backend/entities/Employee" },
+          "description": "Employee profiles."
+        }
+      },
+      {
+        "path": "/roles_admin/{uid}",
+        "definition": {
+          "entityName": "Employee",
+          "schema": { "$ref": "#/backend/entities/Employee" },
+          "description": "Admin identifying collection."
+        }
+      },
+      {
+        "path": "/settings/global",
+        "definition": {
+          "entityName": "Setting",
+          "schema": { "$ref": "#/backend/entities/Setting" },
+          "description": "Global settings."
+        }
+      },
+      {
+        "path": "/employees/{employeeId}/requests/{requestId}",
+        "definition": {
+          "entityName": "Request",
+          "schema": { "$ref": "#/backend/entities/Request" },
+          "description": "Employee requests."
+        }
+      },
+      {
+        "path": "/audit_logs/{auditLogId}",
+        "definition": {
+          "entityName": "AuditLog",
+          "schema": { "$ref": "#/backend/entities/AuditLog" },
+          "description": "Audit trail."
+        }
+      }
+    ]
+  }
+}

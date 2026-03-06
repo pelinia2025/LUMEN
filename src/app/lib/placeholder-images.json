@@ -1,0 +1,11 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "logo",
+      "description": "Portal Lumen Logo",
+      "imageUrl": "https://picsum.photos/seed/lumen/200/200",
+      "imageHint": "abstract lumen light"
+    }
+  ]
+}
